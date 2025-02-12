@@ -1,0 +1,70 @@
+<launch>
+    <arg name="robot_name"  doc="Namespace of the platform producing sensor data." />
+    <arg name="replay"      default="false" />
+    <!-- rosbag controls -->
+    <arg name="sim_time_required" default="true"/>
+    <param name="use_sim_time" value="$(arg sim_time_required)"/>
+    <!-- general configuration -->
+    <arg name="dataset_name" default="realsense" doc="Dataset name (used for parsing config)"/>
+    <arg name="ablation_name" default="realsense_fine" doc="Ablation name (used for parsing config)"/>
+    <arg name="segmenter_config" default="$(find clio_ros)/config/segmentation/large_clip.yaml" doc="openset segmentation config to use"/>
+    <!-- tf frames -->
+    <arg name="map_frame" value="$(arg robot_name)/map"/>
+    <arg name="odom_frame" value="$(arg robot_name)/odom"/>
+    <arg name="robot_frame"  value="$(arg robot_name)/base"/>
+    <arg name="sensor_frame" default="$(arg robot_name)/realsense_base"/>
+
+    <!-- Topics -->
+    <arg name="left_cam_topic"      default="/$(arg robot_name)/forward/infra1/image_rect_raw"/>
+    <arg name="right_cam_topic"     default="/$(arg robot_name)/forward/infra2/image_rect_raw"/>
+    <arg name="imu_topic"           default="/$(arg robot_name)/forward/imu"/>
+    <arg name="external_odom_topic" default="/$(arg robot_name)/jackal_velocity_controller/odom"/>
+    <arg name="run_segmentation" default="true"/>
+
+    <!-- Kimera VIO Launch file specification-->
+    <arg name = "kimera_launch_file" default="$(find kimera_multi)/launch/kimera_vio_jackal.launch"/>
+
+    <group if="$(arg run_segmentation)">
+        <remap from="semantic_inference/color/image_raw" to="/acl_jackal2/forward/color/image_raw/"/>
+        <remap from="semantic_inference/semantic/image_raw" to="/acl_jackal2/forward/color/semantic/image_raw"/>
+        <remap from="semantic_inference/semantic/feature" to="/acl_jackal2/forward/color/semantic/clip_vector"/>
+        <include file="$(find semantic_inference_ros)/launch/openset_segmentation.launch">
+            <arg name="config_path" value="$(arg segmenter_config)"/>
+        </include>
+    </group>
+
+    <group unless="$(arg run_segmentation)">
+        <node pkg="semantic_inference_ros" type="language_embedding_node" name="semantic_inference">
+            <rosparam file="$(arg segmenter_config)"/> <!-- sets model name -->
+        </node>
+    </group>
+
+    <arg name="run_kimera_vio" default="true"/>
+    <group if="$(arg run_kimera_vio)">
+        <include file="$(arg kimera_launch_file)" pass_all_args="true"/>
+    </group>    
+
+    
+    <arg name="run_clio" default="true"/>
+    <group if="$(arg run_clio)">
+        <!-- TODO(nathan) change topic -->
+        <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_realsense" args="0 0 -0.2 0 0 0 $(arg robot_name)/realsense_base $(arg robot_name)/base" />
+        <!-- Decompress images -->
+        <node if="$(arg replay)" pkg="image_transport" type="republish" name="left_img_decompress" 
+        args="compressed in:=$(arg left_cam_topic) raw out:=$(arg left_cam_topic)" />
+        <node if="$(arg replay)" pkg="image_transport" type="republish" name="right_img_decompress" 
+        args="compressed in:=$(arg right_cam_topic) raw out:=$(arg right_cam_topic)" />
+        <node if="$(arg replay)" pkg="image_transport" type="republish" name="rgb_img_decompress" 
+        args="compressed in:=/acl_jackal2/forward/color/image_raw raw out:=/acl_jackal2/forward/color/image_raw" />
+        <remap from="/clio_node/input/camera/rgb/image_raw" to="/acl_jackal2/forward/color/image_raw"/>
+        <remap from="/clio_node/input/camera/depth_registered/image_rect" to="/acl_jackal2/forward/depth/image_rect_raw"/>
+        <remap from="/clio_node/input/camera/semantic/image_raw" to="/acl_jackal2/forward/color/semantic/image_raw"/>
+        <remap from="/clio_node/input/camera/feature" to="/acl_jackal2/forward/color/semantic/clip_vector"/>
+        <include file="$(find clio_ros)/launch/clio.launch" pass_all_args="true">
+            <arg name="sensor_min_range" default="0.3" doc="minimum sensor range in meters"/>
+            <arg name="sensor_max_range" default="4.0" doc="maximum sensor range in meters"/>
+        </include>
+
+    </group>
+
+</launch>
