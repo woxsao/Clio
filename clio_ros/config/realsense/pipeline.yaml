@@ -144,3 +144,6 @@ backend:
       place_edge: 10.0
       place_merge: 10.0
       object_merge: 10.0
+features:
+  tf_lookup: 1.0
+  queue_size: 10
