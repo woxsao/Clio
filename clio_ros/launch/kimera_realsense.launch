@@ -18,16 +18,16 @@
     <arg name="left_cam_topic"      default="/$(arg robot_name)/forward/infra1/image_rect_raw"/>
     <arg name="right_cam_topic"     default="/$(arg robot_name)/forward/infra2/image_rect_raw"/>
     <arg name="imu_topic"           default="/$(arg robot_name)/forward/imu"/>
-    <arg name="external_odom_topic" default="/$(arg robot_name)/jackal_velocity_controller/odom"/>
+    <arg name="external_odom_topic" default="/$(arg robot_name)/kimera_vio_ros/odometry"/>
     <arg name="run_segmentation" default="true"/>
 
     <!-- Kimera VIO Launch file specification-->
     <arg name = "kimera_launch_file" default="$(find kimera_multi)/launch/kimera_vio_jackal.launch"/>
 
     <group if="$(arg run_segmentation)">
-        <remap from="semantic_inference/color/image_raw" to="/acl_jackal2/forward/color/image_raw/"/>
-        <remap from="semantic_inference/semantic/image_raw" to="/acl_jackal2/forward/color/semantic/image_raw"/>
-        <remap from="semantic_inference/semantic/feature" to="/acl_jackal2/forward/color/semantic/clip_vector"/>
+        <remap from="semantic_inference/color/image_raw" to="/$(arg robot_name)/forward/color/image_raw/"/>
+        <remap from="semantic_inference/semantic/image_raw" to="/$(arg robot_name)/forward/color/semantic/image_raw"/>
+        <remap from="semantic_inference/semantic/feature" to="/$(arg robot_name)/forward/color/semantic/clip_vector"/>
         <include file="$(find semantic_inference_ros)/launch/openset_segmentation.launch">
             <arg name="config_path" value="$(arg segmenter_config)"/>
         </include>
@@ -55,11 +55,11 @@
         <node if="$(arg replay)" pkg="image_transport" type="republish" name="right_img_decompress" 
         args="compressed in:=$(arg right_cam_topic) raw out:=$(arg right_cam_topic)" />
         <node if="$(arg replay)" pkg="image_transport" type="republish" name="rgb_img_decompress" 
-        args="compressed in:=/acl_jackal2/forward/color/image_raw raw out:=/acl_jackal2/forward/color/image_raw" />
-        <remap from="/clio_node/input/camera/rgb/image_raw" to="/acl_jackal2/forward/color/image_raw"/>
-        <remap from="/clio_node/input/camera/depth_registered/image_rect" to="/acl_jackal2/forward/depth/image_rect_raw"/>
-        <remap from="/clio_node/input/camera/semantic/image_raw" to="/acl_jackal2/forward/color/semantic/image_raw"/>
-        <remap from="/clio_node/input/camera/feature" to="/acl_jackal2/forward/color/semantic/clip_vector"/>
+        args="compressed in:=/$(arg robot_name)/forward/color/image_raw raw out:=/$(arg robot_name)/forward/color/image_raw" />
+        <remap from="/clio_node/input/camera/rgb/image_raw" to="/$(arg robot_name)/forward/color/image_raw"/>
+        <remap from="/clio_node/input/camera/depth_registered/image_rect" to="/$(arg robot_name)/forward/depth/image_rect_raw"/>
+        <remap from="/clio_node/input/camera/semantic/image_raw" to="/$(arg robot_name)/forward/color/semantic/image_raw"/>
+        <remap from="/clio_node/input/camera/feature" to="/$(arg robot_name)/forward/color/semantic/clip_vector"/>
         <include file="$(find clio_ros)/launch/clio.launch" pass_all_args="true">
             <arg name="sensor_min_range" default="0.3" doc="minimum sensor range in meters"/>
             <arg name="sensor_max_range" default="4.0" doc="maximum sensor range in meters"/>
