@@ -31,7 +31,8 @@ RUN mkdir -p /root/catkin_ws/src && \
     cd /root/catkin_ws && \
     catkin init && \
     catkin config --extend /opt/ros/noetic && \
-    catkin config -a --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTSAM_TANGENT_PREINTEGRATION=OFF -DGTSAM_BUILD_WITH_MARCH_NATIVE=OFF -DOPENGV_BUILD_WITH_MARCH_NATIVE=OFF
+    catkin config -a --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTSAM_TANGENT_PREINTEGRATION=OFF -DGTSAM_BUILD_WITH_MARCH_NATIVE=OFF -DOPENGV_BUILD_WITH_MARCH_NATIVE=OFF && \
+    catkin config --skiplist khronos_eval
 
 RUN rosdep update
 
@@ -40,8 +41,7 @@ RUN --mount=type=ssh cd /root/catkin_ws/src && \
     vcs import . < clio/install/clio.rosinstall && \
     apt-get update && \
     rosdep install --from-paths . --ignore-src -r -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    catkin build -c -s
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip install /root/catkin_ws/src/semantic_inference/semantic_inference[openset]
 
