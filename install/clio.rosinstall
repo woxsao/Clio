@@ -54,3 +54,6 @@
 - git:
     local-name: dbow2_catkin
     uri: git@github.com:MIT-SPARK/dbow2_catkin.git
+- git:
+    local-name: kimera_multi
+    uri: git@github.com:MIT-SPARK/Kimera-Multi.git
