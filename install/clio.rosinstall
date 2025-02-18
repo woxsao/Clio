@@ -39,3 +39,15 @@
 - git:
     local-name: teaser_plusplus
     uri: git@github.com:MIT-SPARK/TEASER-plusplus.git
+- git:
+    local-name: opengv_catkin
+    uri: git@github.com:nathanhhughes/opengv_catkin.git
+- git:
+    local-name: opencv3_catkin
+    uri: git@github.com:ethz-asl/opencv3_catkin.git
+- git:
+    local-name: kimera_vio
+    uri: git@github.com:MIT-SPARK/Kimera-VIO.git
+- git:
+    local-name: kimera_ros
+    uri: git@github.com:MIT-SPARK/Kimera-VIO-ROS.git 
