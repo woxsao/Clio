@@ -50,4 +50,7 @@
     uri: git@github.com:MIT-SPARK/Kimera-VIO.git
 - git:
     local-name: kimera_ros
-    uri: git@github.com:MIT-SPARK/Kimera-VIO-ROS.git 
+    uri: git@github.com:MIT-SPARK/Kimera-VIO-ROS.git
+- git:
+    local-name: dbow2_catkin
+    uri: git@github.com:MIT-SPARK/dbow2_catkin.git
